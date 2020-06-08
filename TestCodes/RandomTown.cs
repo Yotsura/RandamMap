@@ -2,143 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using TestCodes.Models;
 
 namespace TestCodes
 {
-    public class BuildingObject
-    {
-        public int Id { get; set; }
-        public Vector3Int Position { get; set; }
-        public Vector3Int Scale { get; set; }
-    }
-    public class Vector3Int
-    {
-        public int x { get; set; }
-        public int y { get; set; }
-        public int z { get; set; }
-    }
     public class RandomTown
-    {
-        List<List<int>> _mapList;
-        int _mapSizeW;
-        int _mapSizeH;
-        int _wayW;
-        int _id = 0;
-        Random _random;
-        public RandomTown(int sizeH, int sizeW, int wayW, int seed)
-        {
-            _mapSizeW = sizeW;
-            _mapSizeH = sizeH;
-            _wayW = wayW;
-            _random = new Random(seed);
-        }
-
-        public List<BuildingObject> GenerateTown()
-        {
-            //判定用マップ初期化
-            _mapList = Enumerable.Range(0, _mapSizeW).Select(x => new List<int>(Enumerable.Range(0, _mapSizeH).Select(y => -1).ToList())).ToList();
-
-            var result = new List<BuildingObject>();
-            foreach (var mapX in Enumerable.Range(0, _mapSizeH))
-            {
-                foreach (var mapZ in Enumerable.Range(0, _mapSizeW))
-                {
-                    BuildingObject randmObj = RandamBuilding();
-                    var dummyScale =
-                        new Vector3Int
-                        {
-                            x = randmObj.Scale.x + _wayW,
-                            y = randmObj.Scale.y,
-                            z = randmObj.Scale.z + _wayW
-                        };
-                    if (!CheckEmpty(mapX, mapZ, dummyScale)) continue;
-                    //一回り大きく場所を取る
-                    FillZeroInMap(mapX, mapZ, dummyScale);
-                    //objのpositionとid情報更新してオブジェクトのリストに追加
-                    _id++;
-                    randmObj.Id = _id;
-                    randmObj.Position.x = mapX + _wayW;
-                    randmObj.Position.z = mapZ + _wayW;
-                    result.Add(randmObj);
-                    FillIdInMap(randmObj);//テスト用
-                }
-            }
-            IndicateMap();//テスト用
-            return result;
-        }
-
-        //ランダムサイズのビル生成
-        public BuildingObject RandamBuilding()
-        {
-            return new BuildingObject
-            {
-                Position = new Vector3Int { x = 0, y = 0, z = 0 },
-                Scale = new Vector3Int
-                {
-                    x = _random.Next(5, 10),
-                    y = _random.Next(5, 20),
-                    z = _random.Next(5, 10)
-                }
-            };
-        }
-
-        bool CheckEmpty(int mapX, int mapZ, Vector3Int scale)
-        {
-            if (mapX + scale.x > _mapSizeW || mapZ + scale.z > _mapSizeH) return false;
-
-            //横サイズが連続で空いているか？
-            for (var z = mapZ; z < mapZ + scale.z; z++)
-            {
-                if (_mapList[mapX][z] != -1) return false;
-            }
-            //最終座標が入るか？
-            if (_mapList[mapX + scale.x - 1][mapZ + scale.z - 1] != -1)
-                return false;
-            return true;
-        }
-
-        void FillZeroInMap(int mapX, int mapZ, Vector3Int scale)
-        {
-            for (var x = mapX; x < mapX + scale.x; x++)
-            {
-                for (var z = mapZ; z < mapZ + scale.z; z++)
-                {
-                    _mapList[x][z] = 0;
-                }
-            }
-        }
-
-        //以下デバッグ用
-        void FillIdInMap(BuildingObject obj)
-        {
-            //_mapの指定座標から指定サイズをidで埋める
-            for (var x = obj.Position.x; x < obj.Position.x + obj.Scale.x; x++)
-            {
-                for (var z = obj.Position.z; z < obj.Position.z + obj.Scale.z; z++)
-                {
-                    _mapList[x][z] = obj.Id;
-                }
-            }
-        }
-
-        void IndicateMap()
-        {
-            _mapList.ForEach(x =>
-            {
-                var line = "";
-                x.ForEach(z =>
-                {
-                    line += z == -1 || z == 0 ? "  " : z.ToString().PadLeft(2, '_');
-                    line += ",";
-                });
-                Console.WriteLine(line);
-            });
-            Console.ReadKey();
-        }
-    }
-
-
-    public class GenerateRandomTown
     {
         public List<List<int>> _mapList;
         int _mapSizeW;
@@ -148,7 +16,7 @@ namespace TestCodes
         Vector3Int _buildingMax;
         int _id = 0;
         System.Random _random;
-        public GenerateRandomTown(int sizeH, int sizeW, int wayW, int seed, Vector3Int builMin, Vector3Int builMax)
+        public RandomTown(int sizeH, int sizeW, int wayW, int seed, Vector3Int builMin, Vector3Int builMax)
         {
             _mapSizeW = sizeW;
             _mapSizeH = sizeH;
@@ -226,7 +94,7 @@ namespace TestCodes
                     FillIdInMap(randmObj);
                 }
             }
-            IndicateMap();
+            //IndicateMap();
             Console.ReadKey();
             return result;
         }
@@ -290,7 +158,7 @@ namespace TestCodes
             }
         }
 
-        void IndicateMap()
+        public void IndicateMap()
         {
             Console.WriteLine();
             _mapList.ForEach(z =>
