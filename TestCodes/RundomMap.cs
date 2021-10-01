@@ -1,27 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using TestCodes.Models;
 
 namespace TestCodes
 {
     public class RandomMap
     {
-        public List<List<int>> _mapList;
+        public List<List<int>> MapList { get; set; }
         readonly int _size;
-        readonly int PopRate;
+        readonly int _popRate;
         int _minTile = 0;
         int _maxTile = 0;
         int _tileCount = 0;
         readonly Vector3Int _startPos = new Vector3Int { x = 0, z = 0 };
         Vector3Int _goalPos = new Vector3Int { x = 0, z = 0 };
-        static System.Random random = new System.Random();
+        static Random random = new Random();
 
         public RandomMap(int size, int minTile, int maxTile, int popRate)
         {
             _size = size;
-            PopRate = popRate;
+            _popRate = popRate;
             _minTile = minTile;
             _maxTile = maxTile;
             GenerateMap();
@@ -32,8 +31,8 @@ namespace TestCodes
             //指定タイル数になるまでループ
             while (_tileCount < _minTile || _maxTile < _tileCount)
             {
-                _mapList = Enumerable.Range(0, _size).Select(z => new List<int>(Enumerable.Range(0, _size).Select(x => -1).ToList())).ToList();
-                _mapList[_startPos.z][_startPos.x]=0;
+                MapList = Enumerable.Range(0, _size).Select(z => Enumerable.Repeat(-1, _size).ToList()).ToList();
+                MapList[_startPos.z][_startPos.x] = 0;
                 _tileCount = 1;
                 _goalPos = new Vector3Int { x = 0, z = 0 };
                 GetTilePositions();
@@ -47,7 +46,7 @@ namespace TestCodes
             {
                 position = DecideNextPositoin(position);   //次のposition確定と候補着色
                 if (_goalPos.x != 0 || _goalPos.z != 0) break;
-                _mapList[position.z][position.x] = 0;       //次のposition着色
+                MapList[position.z][position.x] = 0;       //次のposition着色
                 _tileCount++;
             }
         }
@@ -56,18 +55,18 @@ namespace TestCodes
         {
             //-1:none/0:tile/1:wall
             var options = new List<Vector3Int>();
-            //4方向のうち範囲内でnoneマスを追加
+            //4方向のうち範囲内で0:tile以外のマスを追加
             //right
-            if (position.x+1 < _size && 0 != _mapList[position.z][position.x + 1])
+            if (position.x + 1 < _size && 0 != MapList[position.z][position.x + 1])
                 options.Add(new Vector3Int { z = position.z, x = position.x + 1 });
             //left
-            if (0 < position.x && 0 != _mapList[position.z][position.x - 1])
+            if (0 < position.x && 0 != MapList[position.z][position.x - 1])
                 options.Add(new Vector3Int { z = position.z, x = position.x - 1 });
             //up
-            if (position.z+1 < _size && 0 != _mapList[position.z + 1][position.x])
+            if (position.z + 1 < _size && 0 != MapList[position.z + 1][position.x])
                 options.Add(new Vector3Int { z = position.z + 1, x = position.x });
             //down
-            if (0 < position.z && 0 != _mapList[position.z - 1][position.x])
+            if (0 < position.z && 0 != MapList[position.z - 1][position.x])
                 options.Add(new Vector3Int { z = position.z - 1, x = position.x });
 
 
@@ -76,14 +75,14 @@ namespace TestCodes
                 _goalPos = new Vector3Int { x = -1, z = -1 };
                 return _goalPos;
             }
-            options.ForEach(pos => _mapList[pos.z][pos.x] = 1);
+            options.ForEach(pos => MapList[pos.z][pos.x] = 1);
             var idx = random.Next(0, options.Count);
             return options[idx];
         }
 
         public void IndicateMap()
         {
-            Console.WriteLine($"\r\nsize:{_size},poprate:{PopRate},tile:{_tileCount}");
+            Console.WriteLine($"\r\nsize:{_size},poprate:{_popRate},tile:{_tileCount}");
             //for(var z=_size-1;z>=0;z--)
             for (var z = 0; z < _size; z++)
             {
@@ -92,8 +91,8 @@ namespace TestCodes
                 {
                     line += z == _startPos.z && x == _startPos.z ? "◎" :
                             z == _goalPos.z && x == _goalPos.z ? "×" :
-                               _mapList[z][x] == 0 ? TrueFromRate(PopRate) ? TrueFromRate(5) ? "★" : "■" : "□" :
-                                    _mapList[z][x] == 1 ? "＿" : "";
+                               MapList[z][x] == 0 ? TrueFromRate(_popRate) ? TrueFromRate(5) ? "★" : "◆" : "■" :
+                                    MapList[z][x] == 1 ? "◇" : "□";
                 });
                 Console.WriteLine(line);
             }
