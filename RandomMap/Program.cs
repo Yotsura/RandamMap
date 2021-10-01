@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using TestCodes.Models;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace TestCodes
+namespace RandomMapTest
 {
     class Program
     {
@@ -18,7 +19,7 @@ namespace TestCodes
                 //test2.SplitMap(2, 2, 1);
                 //var result = test2.GetBuildings();
 
-                var test = new RandomMap(20, 200, 10)
+                var test = new RandomMap(40, 500, 10);
                 test.IndicateMap();
             }
         }

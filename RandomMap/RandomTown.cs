@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
-using TestCodes.Models;
+using RandomMapTest.Models;
 
-namespace TestCodes
+namespace RandomMapTest
 {
     public class RandomTown
     {

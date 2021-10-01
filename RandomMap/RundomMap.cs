@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using TestCodes.Models;
+using RandomMapTest.Models;
 
-namespace TestCodes
+namespace RandomMapTest
 {
     public class RandomMap
     {
