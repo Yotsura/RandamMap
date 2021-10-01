@@ -13,7 +13,7 @@ namespace RandomMapTest
             var test = new RandomMap(30, 350, 10);
             for (; ; )
             {
-                test.GenerateMap();
+                test.CreateMap();
                 test.IndicateMap();
 
                 //int.TryParse(DateTime.Now.ToString("mmssfff"), out var seed);

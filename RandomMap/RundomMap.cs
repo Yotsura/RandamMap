@@ -30,7 +30,9 @@ namespace RandomMapTest
         int TileCount => MapData.Sum(x => x.Count(y => y == 0));
         readonly Vector3Int _startPos = new Vector3Int { x = 0, z = 0 };
         Vector3Int _goalPos = new Vector3Int { x = 0, z = 0 };
-        static Random random = new Random();
+
+        int _seed;
+        static Random _random = new Random();
 
         public RandomMap(int size, int minTile, int popRate)
         {
@@ -39,13 +41,20 @@ namespace RandomMapTest
             _minTile = minTile;
         }
 
-        public void GenerateMap(int seed)
+        public void CreateMap(int seed)
         {
-            random = new Random(seed);
-            GenerateMap();
+            _seed = seed;
+            _random = new Random(_seed);
+            Mapping();
+        }
+        public void CreateMap()
+        {
+            _seed = new Random().Next();
+            _random = new Random(_seed);
+            Mapping();
         }
 
-        public void GenerateMap()
+        void Mapping()
         {
             MapData = Enumerable.Range(0, _size).Select(z => Enumerable.Repeat(-1, _size).ToList()).ToList();
             var nowPos = _startPos;
@@ -55,7 +64,6 @@ namespace RandomMapTest
                 MapData[nowPos.z][nowPos.x] = 0;
                 while (MoveNextPos(ref nowPos)) MapData[nowPos.z][nowPos.x] = 0;    //次のposition着色
                 _goalPos = nowPos;
-                //IndicateMap();
                 nowPos = GetRandamWallPos();
             }
         }
@@ -63,7 +71,7 @@ namespace RandomMapTest
         Vector3Int GetRandamWallPos()
         {
             var wallKeys = MapDic.Where(cell => cell.Value == 1).ToList();
-            var idx = random.Next(0, wallKeys.Count - 1);
+            var idx = _random.Next(0, wallKeys.Count - 1);
             return new Vector3Int { x = wallKeys[idx].Key.x, z = wallKeys[idx].Key.z };
         }
 
@@ -88,14 +96,14 @@ namespace RandomMapTest
             if (options.Count < 1) return false;
             
             options.ForEach(pos => MapData[pos.z][pos.x] = 1);
-            position = options[random.Next(0, options.Count)];
+            position = options[_random.Next(0, options.Count)];
             return true;
         }
 
         public void IndicateMap()
         {
             Console.Clear();
-            Console.WriteLine($"\r\nsize:{_size},poprate:{_popRate},tile:{TileCount}");
+            Console.WriteLine($"\r\nsize:{_size},poprate:{_popRate},tile:{TileCount}\r\nseed：{_seed}");
             for (var z = 0; z < _size; z++)
             {
                 var line = "";
@@ -111,11 +119,11 @@ namespace RandomMapTest
             Console.ReadKey();
         }
 
-        public static bool TrueFromRate(int rate)
+        static bool TrueFromRate(int rate)
         {
             var rates = Enumerable.Range(0, 100).ToDictionary(x => x, y => false);
             Enumerable.Range(0, rate).ToList().ForEach(x => rates[x] = true);
-            return rates[random.Next(0, 100)];
+            return rates[_random.Next(0, 100)];
         }
     }
 }
