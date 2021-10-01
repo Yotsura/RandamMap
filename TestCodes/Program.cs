@@ -18,7 +18,7 @@ namespace TestCodes
                 //test2.SplitMap(2, 2, 1);
                 //var result = test2.GetBuildings();
 
-                var test = new RandomMap(20, 200, 250, 10);
+                var test = new RandomMap(20, 200, 10)
                 test.IndicateMap();
             }
         }
