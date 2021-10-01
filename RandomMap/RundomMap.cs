@@ -34,11 +34,11 @@ namespace RandomMapTest
         int _seed;
         static Random _random = new Random();
 
-        public RandomMap(int size, int minTile, int popRate)
+        public RandomMap(int size, int tileRate, int popRate)
         {
             _size = size;
             _popRate = popRate;
-            _minTile = minTile;
+            _minTile = size * size * tileRate / 100;
         }
 
         public void CreateMap(int seed)
