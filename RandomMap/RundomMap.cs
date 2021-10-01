@@ -37,23 +37,25 @@ namespace RandomMapTest
             _size = size;
             _popRate = popRate;
             _minTile = minTile;
-            MapData = Enumerable.Range(0, _size).Select(z => Enumerable.Repeat(-1, _size).ToList()).ToList();
+        }
+
+        public void GenerateMap(int seed)
+        {
+            random = new Random(seed);
             GenerateMap();
         }
 
         public void GenerateMap()
         {
+            MapData = Enumerable.Range(0, _size).Select(z => Enumerable.Repeat(-1, _size).ToList()).ToList();
             var nowPos = _startPos;
-            MapData[nowPos.z][nowPos.x] = 0;
-
             //指定タイルに満たなかった場合はランダムな1:wallから再スタート
             while (TileCount < _minTile)
             {
-                while (MoveNextPos(ref nowPos))
-                {
-                    MapData[nowPos.z][nowPos.x] = 0;    //次のposition着色
-                }
-                _goalPos = new Vector3Int { x = nowPos.x, z = nowPos.z };
+                MapData[nowPos.z][nowPos.x] = 0;
+                while (MoveNextPos(ref nowPos)) MapData[nowPos.z][nowPos.x] = 0;    //次のposition着色
+                _goalPos = nowPos;
+                //IndicateMap();
                 nowPos = GetRandamWallPos();
             }
         }
@@ -83,28 +85,24 @@ namespace RandomMapTest
             if (0 < position.z && 0 != MapData[position.z - 1][position.x])
                 options.Add(new Vector3Int { z = position.z - 1, x = position.x });
 
-
-            if (options.Count < 1)
-            {
-                return false;
-            }
+            if (options.Count < 1) return false;
+            
             options.ForEach(pos => MapData[pos.z][pos.x] = 1);
-            var idx = random.Next(0, options.Count);
-
-            position = options[idx];
+            position = options[random.Next(0, options.Count)];
             return true;
         }
 
         public void IndicateMap()
         {
+            Console.Clear();
             Console.WriteLine($"\r\nsize:{_size},poprate:{_popRate},tile:{TileCount}");
             for (var z = 0; z < _size; z++)
             {
                 var line = "";
                 Enumerable.Range(0, _size).ToList().ForEach(x =>
                 {
-                    line += z == _startPos.z && x == _startPos.z ? "◎" :
-                            z == _goalPos.z && x == _goalPos.z ? "×" :
+                    line += z == _startPos.z && x == _startPos.x ? "◎" :
+                            z == _goalPos.z && x == _goalPos.x ? "×" :
                                MapData[z][x] == 0 ? TrueFromRate(_popRate) ? TrueFromRate(5) ? "★" : "◆" : "■" :
                                     MapData[z][x] == 1 ? "◇" : "□";
                 });
