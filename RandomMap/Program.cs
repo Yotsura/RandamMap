@@ -10,7 +10,7 @@ namespace RandomMapTest
     {
         static void Main(string[] args)
         {
-            var test = new RandomMap(30, 30, 10);
+            var test = new RandomMap(30, 50, 10);
             for (; ; )
             {
                 test.CreateMap();

@@ -57,8 +57,9 @@ namespace RandomMapTest
 
         void Mapping()
         {
+            //mapの値 -1:none/0:tile/1:wall
             MapData = Enumerable.Range(0, _size).Select(z => Enumerable.Repeat(-1, _size).ToList()).ToList();
-            Inclination = new Inclination();
+            Inclination = new Inclination(_size);
             var nowPos = _startPos;
             //指定タイルに満たなかった場合はランダムな1:wallから再スタート
             while (TileCount < _minTile)
@@ -67,7 +68,7 @@ namespace RandomMapTest
                 while (MoveNextPos(ref nowPos)) MapData[nowPos.z][nowPos.x] = 0;    //次のposition着色
                 _goalPos = nowPos;
                 nowPos = GetRandamWallPos();
-                IndicateMap();
+                //IndicateMap();
             }
         }
 
@@ -80,7 +81,6 @@ namespace RandomMapTest
 
         bool MoveNextPos(ref Vector3Int position)
         {
-            //-1:none/0:tile/1:wall
             var options = new List<(int direction, Vector3Int vector)>();
             //4方向のうち範囲内で0:tile以外のマスを追加
             //up z--
@@ -98,30 +98,15 @@ namespace RandomMapTest
 
             //四方に壁設置
             options.ForEach(pos => MapData[pos.vector.z][pos.vector.x] = 1);
-            if (options.Count < 1) return false;
+            if (options.Count() < 1) return false;
 
             //inclinationに応じてoption調整
             var aditional = options.FirstOrDefault(x => x.direction == Inclination.HotDirection);
             if (aditional.direction > 0)
                 options.Add(aditional);
 
-            var temp = options[_random.Next(0, options.Count)];
-            switch(temp.direction)
-            {
-                case 1:
-                    Inclination.Up();
-                    break;
-                case 2:
-                    Inclination.Right();
-                    break;
-                case 3:
-                    Inclination.Down();
-                    break;
-                case 4:
-                    Inclination.Left();
-                    break;
-            }
-            position = temp.vector;
+            position = options[_random.Next(0, options.Count)].vector;
+            Inclination.AddPosition(position);
             return true;
         }
 

@@ -11,33 +11,29 @@ namespace RandomMapTest.Model
     /// </summary>
     public class Inclination
     {
-        //左上始まりなのではじめは右下行きやすく。
-        int _up { get; set; } = 10;
-        int _right { get; set; } = 0;
-        int _down { get; set; } = 0;
-        int _left { get; set; } = 10;
+        public Inclination(int size)
+        {
+            _mapSize = size;
+        }
+
+        int _mapSize;
+
+        int _up { get; set; }
+        int _right { get; set; }
+        int _down { get; set; }
+        int _left { get; set; }
 
         public int HotDirection
             => new List<(int dir, int val)> { (1, _up), (2, _right), (3, _down), (4, _left) }
                 .OrderBy(x => x.val).First().dir;
         public string Info => $"({_up}/{_right}/{_down}/{_left})";
 
-        public void Up()
+        public void AddPosition(Vector3Int position)
         {
-            _up++;
+            if (position.z < _mapSize / 2) _up++;
+            else _down++;
+            if (position.x < _mapSize / 2) _left++;
+            else _right++;
         }
-        public void Right()
-        {
-            _right++;
-        }
-        public void Down()
-        {
-            _down++;
-        }
-        public void Left()
-        {
-            _left++;
-        }
-
     }
 }
