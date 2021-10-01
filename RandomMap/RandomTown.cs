@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
-using RandomMapTest.Models;
+using RandomMapTest.Model;
 
 namespace RandomMapTest
 {

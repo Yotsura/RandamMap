@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace RandomMapTest.Models
+namespace RandomMapTest.Model
 {
     public class Vector3Int
     {
