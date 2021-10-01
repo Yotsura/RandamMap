@@ -7,16 +7,16 @@ namespace TestCodes
 {
     public class RandomMap
     {
-        Dictionary<(int z, int x), int> MapDic
+        Dictionary<Vector3Int, int> MapDic
         {
             get
             {
-                var temp = new Dictionary<(int z, int x), int>();
+                var temp = new Dictionary<Vector3Int, int>();
                 for (var z = 0; z < _size; z++)
                 {
                     for (var x = 0; x < _size; x++)
                     {
-                        temp[(z, x)] = MapData[z][x];
+                        temp[new Vector3Int { x = x, z = z }] = MapData[z][x];
                     }
                 }
                 return temp;
@@ -62,7 +62,6 @@ namespace TestCodes
         {
             var wallKeys = MapDic.Where(cell => cell.Value == 1).ToList();
             var idx = random.Next(0, wallKeys.Count - 1);
-            var test2 = wallKeys[idx];
             return new Vector3Int { x = wallKeys[idx].Key.x, z = wallKeys[idx].Key.z };
         }
 
