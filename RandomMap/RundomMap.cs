@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using RandomMapTest.Model;
+//using UnityEngine;
+using Random = System.Random;
 
 namespace RandomMapTest
 {
     public class RandomMap
     {
-        Dictionary<Vector3Int, int> MapDic
+        public Dictionary<Vector3Int, int> MapDic
         {
             get
             {
@@ -16,7 +18,7 @@ namespace RandomMapTest
                 {
                     for (var x = 0; x < _size; x++)
                     {
-                        temp[new Vector3Int { x = x, z = z }] = MapData[z][x];
+                        temp[new Vector3Int { x = x,z = z }] = MapData[z][x];
                     }
                 }
                 return temp;
@@ -32,7 +34,7 @@ namespace RandomMapTest
         Vector3Int _goalPos = new Vector3Int { x = 0, z = 0 };
         TileDensity Inclination;
 
-        int _seed;
+        public int Seed { get; set; }
         static Random _random = new Random();
 
         public RandomMap(int size, int tileRate, int popRate)
@@ -44,14 +46,14 @@ namespace RandomMapTest
 
         public void CreateMap(int seed)
         {
-            _seed = seed;
-            _random = new Random(_seed);
+            Seed = seed;
+            _random = new Random(Seed);
             Mapping();
         }
         public void CreateMap()
         {
-            _seed = new Random().Next();
-            _random = new Random(_seed);
+            Seed = new Random().Next();
+            _random = new Random(Seed);
             Mapping();
         }
 
@@ -68,7 +70,7 @@ namespace RandomMapTest
                 while (LayOutAWay(ref nowPos)) MapData[nowPos.z][nowPos.x] = 0;    //次のposition着色
                 _goalPos = nowPos;
                 nowPos = GetRandamWallPos();
-                IndicateMap();
+                //IndicateMap();
             }
         }
 
@@ -81,24 +83,20 @@ namespace RandomMapTest
 
         bool LayOutAWay(ref Vector3Int position)
         {
-            var options = new List<(int direction, Vector3Int vector)>();
-            //4方向のうち範囲内で0:tile以外のマスを追加
-            //upper z--
-            if (0 < position.z && 0 != MapData[position.z - 1][position.x])
-                options.Add((1, new Vector3Int { z = position.z - 1, x = position.x }));
-            //right x++
-            if (position.x + 1 < _size && 0 != MapData[position.z][position.x + 1])
-                options.Add((2, new Vector3Int { z = position.z, x = position.x + 1 }));
-            //lower z++
-            if (position.z + 1 < _size && 0 != MapData[position.z + 1][position.x])
-                options.Add((3, new Vector3Int { z = position.z + 1, x = position.x }));
-            //left x--
-            if (0 < position.x && 0 != MapData[position.z][position.x - 1])
-                options.Add((4, new Vector3Int { z = position.z, x = position.x - 1 }));
+            var options = new List<(int direction, Vector3Int vector)>
+            {
+                (1, new Vector3Int { z = position.z - 1, x = position.x }), //upper z--
+                (2, new Vector3Int { z = position.z, x = position.x + 1 }), //right x++
+                (3, new Vector3Int { z = position.z + 1, x = position.x }), //lower z++
+                (4, new Vector3Int { z = position.z, x = position.x - 1 }), //left x--
+            }.Where(pos =>
+                0 <= pos.vector.x && pos.vector.x < _size &&
+                0 <= pos.vector.z && pos.vector.z < _size &&
+                MapData[pos.vector.z][pos.vector.x] != 0).ToList();
+            if (options.Count() < 1) return false;
 
             //四方に壁設置
             options.ForEach(pos => MapData[pos.vector.z][pos.vector.x] = 1);
-            if (options.Count() < 1) return false;
 
             //一番密度の低い方角へ伸びる確率を上げる
             var aditional = options.FirstOrDefault(x => x.direction == Inclination.LowDensity);
@@ -110,10 +108,15 @@ namespace RandomMapTest
             return true;
         }
 
+        //public void IndicateInfo()
+        //{
+        //    Debug.Log($"size:{_size},tileTile:{_minTile},poprate:{_popRate},tile:{TileCount},seed：{Seed}");
+        //}
+
         public void IndicateMap()
         {
             Console.Clear();
-            Console.WriteLine($"\r\nsize:{_size},poprate:{_popRate},tile:{TileCount}\r\nseed：{_seed}");
+            Console.WriteLine($"\r\nsize:{_size},poprate:{_popRate},tile:{TileCount}\r\nseed：{Seed}");
             Console.WriteLine($"inclination:{Inclination.LowDensity}{Inclination.Info}");
             for (var z = 0; z < _size; z++)
             {
