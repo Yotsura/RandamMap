@@ -10,11 +10,28 @@ namespace RandomMapTest
     {
         static void Main(string[] args)
         {
-            var test = new RandomMap(30, 50, 10);
+            var map = new RandomMap(30, 50, 10);
             for (; ; )
             {
-                test.CreateMap();
-                test.IndicateMap();
+                map.CreateMap();
+                map.IndicateMap();
+
+                foreach (var pos in map.MapDic)
+                {
+                    switch(pos.stat)
+                    {
+                        case -1:
+                            //床なし
+                            break;
+                        case 0:
+                            //床あり
+                            break;
+                        case 1:
+                            //壁あり
+                            break;
+
+                    }
+                }
 
                 //int.TryParse(DateTime.Now.ToString("mmssfff"), out var seed);
                 //Console.WriteLine($"seed:{seed}");

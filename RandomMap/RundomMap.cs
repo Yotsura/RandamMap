@@ -9,27 +9,28 @@ namespace RandomMapTest
 {
     public class RandomMap
     {
-        public Dictionary<Vector3Int, int> MapDic
+
+        public List<List<int>> MapData { get; set; }
+        int TileCount => MapData.Sum(x => x.Count(y => y == 0));
+        public List<(Vector3Int vector, int stat)> MapDic
         {
             get
             {
-                var temp = new Dictionary<Vector3Int, int>();
+                var temp = new List<(Vector3Int, int)>();
                 for (var z = 0; z < _size; z++)
                 {
                     for (var x = 0; x < _size; x++)
                     {
-                        temp[new Vector3Int { x = x,z = z }] = MapData[z][x];
+                        temp.Add((new Vector3Int { x = x, z = z }, MapData[z][x]));
                     }
                 }
                 return temp;
             }
         }
 
-        public List<List<int>> MapData { get; set; }
         readonly int _size;
         readonly int _popRate;
-        int _minTile = 0;
-        int TileCount => MapData.Sum(x => x.Count(y => y == 0));
+        readonly int _minTile = 0;
         readonly Vector3Int _startPos = new Vector3Int { x = 0, z = 0 };
         Vector3Int _goalPos = new Vector3Int { x = 0, z = 0 };
         TileDensity Inclination;
@@ -76,9 +77,8 @@ namespace RandomMapTest
 
         Vector3Int GetRandamWallPos()
         {
-            var wallKeys = MapDic.Where(cell => cell.Value == 1).ToList();
-            var idx = _random.Next(0, wallKeys.Count - 1);
-            return new Vector3Int { x = wallKeys[idx].Key.x, z = wallKeys[idx].Key.z };
+            var wallKeys = MapDic.Where(cell => cell.stat == 1).ToList();
+            return wallKeys[_random.Next(0, wallKeys.Count - 1)].vector;
         }
 
         bool LayOutAWay(ref Vector3Int position)
@@ -100,14 +100,14 @@ namespace RandomMapTest
 
             //一番密度の低い方角へ伸びる確率を上げる
             var aditional = options.FirstOrDefault(x => x.direction == Inclination.LowDensity);
-            if (aditional.direction > 0)
-                options.Add(aditional);
+            if (aditional.direction > 0) options.Add(aditional);
 
             position = options[_random.Next(0, options.Count)].vector;
             Inclination.AddPosition(position);
             return true;
         }
 
+        //unityコンソール用
         //public void IndicateInfo()
         //{
         //    Debug.Log($"size:{_size},tileTile:{_minTile},poprate:{_popRate},tile:{TileCount},seed：{Seed}");
@@ -123,10 +123,10 @@ namespace RandomMapTest
                 var line = "";
                 Enumerable.Range(0, _size).ToList().ForEach(x =>
                 {
-                    line += z == _startPos.z && x == _startPos.x ? "◎" :
-                            z == _goalPos.z && x == _goalPos.x ? "×" :
-                               MapData[z][x] == 0 ? TrueFromRate(_popRate) ? TrueFromRate(5) ? "★" : "◆" : "■" :
-                                    MapData[z][x] == 1 ? "◇" : "□";
+                    line += z == _startPos.z && x == _startPos.x ? "●" :
+                            z == _goalPos.z && x == _goalPos.x ? "★" :
+                               MapData[z][x] == 0 ? TrueFromRate(_popRate) ? TrueFromRate(5) ? "☆" : "○" : "□" :
+                                    MapData[z][x] == 1 ? "■" : "◇";
                 });
                 Console.WriteLine(line);
             }
