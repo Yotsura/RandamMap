@@ -12,21 +12,8 @@ namespace RandomMapTest
 
         public List<List<int>> MapData { get; set; }
         int TileCount => MapData.Sum(x => x.Count(y => y == 0));
-        public List<(Vector3Int vector, int stat)> MapDic
-        {
-            get
-            {
-                var temp = new List<(Vector3Int, int)>();
-                for (var z = 0; z < _size; z++)
-                {
-                    for (var x = 0; x < _size; x++)
-                    {
-                        temp.Add((new Vector3Int { x = x, z = z }, MapData[z][x]));
-                    }
-                }
-                return temp;
-            }
-        }
+        public List<(Vector3Int vector, int stat)> MapDic =>
+            MapData.SelectMany((z, z_idx) => z.Select((x, x_idx) => (new Vector3Int { x = x_idx, z = z_idx }, x))).ToList();
 
         readonly int _size;
         readonly int _popRate;
